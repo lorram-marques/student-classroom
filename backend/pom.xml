@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lorram</groupId>
-	<artifactId>grade</artifactId>
+	<artifactId>classroom</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>grade</name>
-	<description>Student grades API</description>
+	<description>Student classroom API</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
