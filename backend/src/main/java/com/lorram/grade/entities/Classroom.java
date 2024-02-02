@@ -1,11 +1,17 @@
 package com.lorram.grade.entities;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,7 +24,9 @@ public class Classroom {
 	private Integer grade;
 	private String team;
 	
-	//TODO Student list
+	@JsonIgnore
+	@OneToMany(mappedBy = "classroom", fetch = FetchType.EAGER)
+	private Set<Student> students = new HashSet<>();
 	
 	public Classroom() {
 	}
@@ -51,6 +59,10 @@ public class Classroom {
 
 	public void setTeam(String team) {
 		this.team = team;
+	}
+	
+	public Set<Student> getStudents() {
+		return students;
 	}
 
 	@Override

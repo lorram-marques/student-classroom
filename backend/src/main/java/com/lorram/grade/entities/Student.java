@@ -9,6 +9,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,7 +28,11 @@ public class Student {
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	private Instant birthdate;
 	
-	//TODO private Classroom classroom;
+	@ManyToOne
+	@JoinTable(name = "tb_student_classroom",
+		joinColumns = @JoinColumn(name = "student_id"),
+		inverseJoinColumns = @JoinColumn(name = "classroom_id"))	
+	private Classroom classroom;
 	
 	public Student() {
 	}
@@ -76,6 +83,14 @@ public class Student {
 
 	public void setBirthdate(Instant birthdate) {
 		this.birthdate = birthdate;
+	}
+	
+	public Classroom getClassroom() {
+		return classroom;
+	}
+
+	public void setClassroom(Classroom classroom) {
+		this.classroom = classroom;
 	}
 
 	@Override
