@@ -7,5 +7,5 @@ import com.lorram.grade.entities.Student;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long>{
-
+	
 }

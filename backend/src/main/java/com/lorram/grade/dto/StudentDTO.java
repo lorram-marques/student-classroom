@@ -1,7 +1,9 @@
 package com.lorram.grade.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
 
+import com.lorram.grade.entities.Classroom;
 import com.lorram.grade.entities.Student;
 
 public class StudentDTO implements Serializable {
@@ -11,15 +13,19 @@ public class StudentDTO implements Serializable {
 	private String firstName;
 	private String lastName;
 	private Long enrollment;
-	
+	private Instant birthdate;
+	private Long classroomId;
+
 	public StudentDTO() {
 	}
 
-	public StudentDTO(Long id, String firstName, String lastName, Long enrollment) {
+	public StudentDTO(Long id, String firstName, String lastName, Long enrollment, Instant birthdate, Classroom classroom) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.enrollment = enrollment;
+		this.birthdate = birthdate;
+		this.setClassroomId(classroom.getId());
 	}
 	
 	public StudentDTO(Student student) {
@@ -27,6 +33,8 @@ public class StudentDTO implements Serializable {
 		firstName = student.getFirstName();
 		lastName = student.getLastName();
 		enrollment = student.getEnrollment();
+		birthdate = student.getBirthdate();
+		classroomId = student.getClassroom().getId();
 	}
 
 	public Long getId() {
@@ -59,5 +67,21 @@ public class StudentDTO implements Serializable {
 
 	public void setEnrollment(Long enrollment) {
 		this.enrollment = enrollment;
+	}
+	
+	public Instant getBirthdate() {
+		return birthdate;
+	}
+
+	public void setBirthdate(Instant birthdate) {
+		this.birthdate = birthdate;
+	}
+
+	public Long getClassroomId() {
+		return classroomId;
+	}
+
+	public void setClassroomId(Long classroomId) {
+		this.classroomId = classroomId;
 	}
 }

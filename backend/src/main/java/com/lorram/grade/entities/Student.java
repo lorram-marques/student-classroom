@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,8 +24,6 @@ public class Student implements Serializable {
 	private String firstName;
 	private String lastName;
 	private Long enrollment;
-	
-	@JsonFormat(pattern = "dd-MM-yyyy")
 	private Instant birthdate;
 	
 	@ManyToOne
