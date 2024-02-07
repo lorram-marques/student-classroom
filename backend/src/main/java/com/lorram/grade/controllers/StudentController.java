@@ -38,7 +38,7 @@ public class StudentController {
 		return ResponseEntity.ok().body(dto);
 	}
 	
-	@PutMapping(value = "{id}")
+	@PutMapping(value = "/{id}")
 	public ResponseEntity<StudentDTO> update(@RequestBody StudentDTO dto, @PathVariable Long id) {
 		StudentDTO newDto = service.update(dto, id);
 		return ResponseEntity.ok().body(newDto);
@@ -51,7 +51,7 @@ public class StudentController {
 		return ResponseEntity.created(uri).body(newDto);
 	}
 	
-	@DeleteMapping(value = "{id}")
+	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
