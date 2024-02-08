@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.lorram.grade.dto.ClassroomDTO;
 import com.lorram.grade.entities.Classroom;
 import com.lorram.grade.repositories.ClassroomRepository;
+import com.lorram.grade.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ClassroomService {
@@ -24,7 +25,7 @@ public class ClassroomService {
 	
 	public ClassroomDTO findById(Long id) {
 		Optional<Classroom> obj = repository.findById(id);
-		Classroom entity = obj.orElseThrow(() -> new RuntimeException()); // TODO ResourceNotFoundException
+		Classroom entity = obj.orElseThrow(() -> new ResourceNotFoundException(id)); 
 		return new ClassroomDTO(entity);
 	}
 	

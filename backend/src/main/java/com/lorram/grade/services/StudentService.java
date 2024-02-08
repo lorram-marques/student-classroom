@@ -3,6 +3,7 @@ package com.lorram.grade.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import com.lorram.grade.dto.StudentDTO;
 import com.lorram.grade.entities.Student;
 import com.lorram.grade.repositories.ClassroomRepository;
 import com.lorram.grade.repositories.StudentRepository;
+import com.lorram.grade.services.exceptions.DatabaseException;
+import com.lorram.grade.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class StudentService {
@@ -28,7 +31,7 @@ public class StudentService {
 	
 	public StudentDTO findById(Long id) {
 		Optional<Student> obj = repository.findById(id);
-		Student student = obj.orElseThrow(() -> new RuntimeException("Entity not found")); //TODO ResourceNotFoundException
+		Student student = obj.orElseThrow(() -> new ResourceNotFoundException(id));
 		return new StudentDTO(student);
 	}
 	
@@ -41,8 +44,12 @@ public class StudentService {
 
 	public StudentDTO insert(StudentDTO dto) {
 		Student entity = new Student();
+		try {
 		fromDto(dto, entity);
 		entity = repository.save(entity);
+		} catch(DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
+		}
 		return new StudentDTO(entity);
 	}
 	
@@ -55,6 +62,6 @@ public class StudentService {
 		entity.setLastName(dto.getLastName());
 		entity.setEnrollment(dto.getEnrollment());
 		entity.setBirthdate(dto.getBirthdate());
-		entity.setClassroom(classroomRepository.getReferenceById(dto.getClassroomId())); // TODO IntegrityConstraintViolationException
+		entity.setClassroom(classroomRepository.getReferenceById(dto.getClassroomId())); 
 	}
 }
