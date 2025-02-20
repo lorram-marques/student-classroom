@@ -2,6 +2,7 @@ package com.lorram.grade.tests;
 
 import java.time.Instant;
 
+import com.lorram.grade.dto.ClassroomDTO;
 import com.lorram.grade.dto.StudentDTO;
 import com.lorram.grade.entities.Classroom;
 import com.lorram.grade.entities.Student;
@@ -15,13 +16,18 @@ public class Factory {
 		return student;
 	}
 	
+	public static StudentDTO createStudentDTO() {
+		Student student = createStudent();
+		return new StudentDTO(student);
+	}
+	
 	public static Classroom createClassroom() {
 		Classroom classroom = new Classroom(1L, 1, "A");	
 		return classroom;
 	}
 	
-	public static StudentDTO createStudentDTO() {
-		Student student = createStudent();
-		return new StudentDTO(student);
+	public static ClassroomDTO createClassroomDTO() {
+		Classroom classroom = createClassroom();	
+		return new ClassroomDTO(classroom);
 	}
 }
