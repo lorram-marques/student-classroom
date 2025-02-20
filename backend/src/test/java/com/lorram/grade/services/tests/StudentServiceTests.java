@@ -1,5 +1,7 @@
 package com.lorram.grade.services.tests;
 
+import static org.mockito.Mockito.times;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +26,11 @@ import com.lorram.grade.entities.Student;
 import com.lorram.grade.repositories.ClassroomRepository;
 import com.lorram.grade.repositories.StudentRepository;
 import com.lorram.grade.services.StudentService;
+import com.lorram.grade.services.exceptions.DatabaseException;
+import com.lorram.grade.services.exceptions.ResourceNotFoundException;
 import com.lorram.grade.tests.Factory;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 public class StudentServiceTests {
@@ -39,6 +46,7 @@ public class StudentServiceTests {
 	
 	private long existingId;
 	private long nonExistingId;
+	private long dependantId;
 	private Student student;
 	private StudentDTO studentDto;
 	private Classroom classroom;
@@ -60,7 +68,13 @@ public class StudentServiceTests {
 		
 		Mockito.when(repository.getReferenceById(existingId)).thenReturn(student);
 		Mockito.when(classroomRepository.getReferenceById(existingId)).thenReturn(classroom);
-		Mockito.when(repository.save(student)).thenReturn(student);
+		
+		Mockito.when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+		Mockito.when(classroomRepository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+		
+		Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(student);
+		
+		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependantId);
 		
 	}
 	
@@ -76,7 +90,7 @@ public class StudentServiceTests {
 	}
 	
 	@Test
-	public void findByIdShouldReturnStudentDTO() {
+	public void findByIdShouldReturnStudentDTOWhenIdExists() {
 		
 		StudentDTO dto = service.findById(existingId);
 		
@@ -86,22 +100,61 @@ public class StudentServiceTests {
 	}
 	
 	@Test
-	public void updateShouldReturnStudentDTO() {
+	public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+		
+		Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+			service.findById(nonExistingId);
+		});
+		
+		Mockito.verify(repository, Mockito.times(1)).findById(nonExistingId);
+	}
+	
+	@Test
+	public void updateShouldReturnStudentDTOWhenIdExists() {
 		
 		StudentDTO dto = service.update(studentDto, existingId);
 	
-		
 		Assertions.assertNotNull(dto);
 		Mockito.verify(repository, Mockito.times(1)).getReferenceById(existingId);
 		Mockito.verify(repository, Mockito.times(1)).save(student);
 	}
 	
 	@Test
+	public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+		
+		Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+			service.update(studentDto, nonExistingId);
+		});
+		
+		Mockito.verify(repository, Mockito.times(1)).getReferenceById(nonExistingId);
+	}
+	
+	@Test
 	public void insertShouldReturnStudentDTO() {
 		
-		//StudentDTO dto = service.insert(studentDto);
+		StudentDTO dto = service.insert(studentDto);
 		
-		//Assertions.assertNotNull(dto);
-		//Mockito.verify(repository, Mockito.times(1)).save(student);
+		Assertions.assertNotNull(dto);
+		Mockito.verify(repository, Mockito.times(1)).save(ArgumentMatchers.any());
+	}
+	
+	@Test
+	public void deleteShouldDoNothing() {
+		
+		Assertions.assertDoesNotThrow(() -> {
+			service.delete(existingId);
+		});
+		
+		Mockito.verify(repository, times(1)).deleteById(existingId);
+	}
+	
+	@Test
+	public void deleteShouldThrowDatabaseExceptionWhenDependantId() {
+		
+		Assertions.assertThrows(DatabaseException.class, () -> {
+			service.delete(dependantId);
+		});
+		
+		Mockito.verify(repository, times(1)).deleteById(dependantId);
 	}
 }

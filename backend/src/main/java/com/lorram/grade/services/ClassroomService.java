@@ -3,6 +3,7 @@ package com.lorram.grade.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,10 @@ import org.springframework.stereotype.Service;
 import com.lorram.grade.dto.ClassroomDTO;
 import com.lorram.grade.entities.Classroom;
 import com.lorram.grade.repositories.ClassroomRepository;
+import com.lorram.grade.services.exceptions.DatabaseException;
 import com.lorram.grade.services.exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ClassroomService {
@@ -30,10 +34,14 @@ public class ClassroomService {
 	}
 	
 	public ClassroomDTO update(ClassroomDTO dto, Long id) {
-		Classroom entity = repository.getReferenceById(id);
-		fromDto(dto, entity);
-		entity = repository.save(entity);
-		return new ClassroomDTO(entity);
+		try {
+			Classroom entity = repository.getReferenceById(id);
+			fromDto(dto, entity);
+			entity = repository.save(entity);
+			return new ClassroomDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+		}
 	}
 	
 	public ClassroomDTO insert(ClassroomDTO dto) {
@@ -44,7 +52,12 @@ public class ClassroomService {
 	}
 	
 	public void delete(Long id) {
-		repository.deleteById(id);
+		try {
+			repository.deleteById(id);
+		}
+		catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
+		}
 	}
 
 	private void fromDto(ClassroomDTO dto, Classroom entity) {

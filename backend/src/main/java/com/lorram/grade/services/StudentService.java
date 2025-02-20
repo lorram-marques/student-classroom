@@ -15,6 +15,8 @@ import com.lorram.grade.repositories.StudentRepository;
 import com.lorram.grade.services.exceptions.DatabaseException;
 import com.lorram.grade.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class StudentService {
 	
@@ -36,17 +38,21 @@ public class StudentService {
 	}
 	
 	public StudentDTO update(StudentDTO dto, Long id) {
-		Student entity = repository.getReferenceById(id);
-		fromDto(dto, entity);
-		entity = repository.save(entity);
-		return new StudentDTO(entity);
+		try {
+			Student entity = repository.getReferenceById(id);
+			fromDto(dto, entity);
+			entity = repository.save(entity);
+			return new StudentDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+		}
 	}
 
 	public StudentDTO insert(StudentDTO dto) {
 		Student entity = new Student();
 		try {
-		fromDto(dto, entity);
-		entity = repository.save(entity);
+			fromDto(dto, entity);
+			entity = repository.save(entity);
 		} catch(DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation");
 		}
@@ -54,7 +60,12 @@ public class StudentService {
 	}
 	
 	public void delete(Long id) {
-		repository.deleteById(id);
+		try {
+			repository.deleteById(id);
+		}
+		catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
+		}	
 	}
 	
 	private void fromDto(StudentDTO dto, Student entity) {
