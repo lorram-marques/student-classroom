@@ -18,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.lorram.grade.dto.StudentDTO;
+import com.lorram.grade.entities.Classroom;
 import com.lorram.grade.entities.Student;
+import com.lorram.grade.repositories.ClassroomRepository;
 import com.lorram.grade.repositories.StudentRepository;
 import com.lorram.grade.services.StudentService;
 import com.lorram.grade.tests.Factory;
@@ -32,9 +34,14 @@ public class StudentServiceTests {
 	@Mock
 	private StudentRepository repository;
 	
+	@Mock
+	private ClassroomRepository classroomRepository;
+	
 	private long existingId;
 	private long nonExistingId;
 	private Student student;
+	private StudentDTO studentDto;
+	private Classroom classroom;
 	private PageImpl<Student> page;
 	
 	@BeforeEach
@@ -42,11 +49,18 @@ public class StudentServiceTests {
 		existingId = 1L;
 		nonExistingId = 2L;
 		student = Factory.createStudent();
+		studentDto = Factory.createStudentDTO();
+		classroom = Factory.createClassroom();
+		
 		page = new PageImpl<>(List.of(student));
 		
 		Mockito.when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
 		Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(student));
 		Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+		
+		Mockito.when(repository.getReferenceById(existingId)).thenReturn(student);
+		Mockito.when(classroomRepository.getReferenceById(existingId)).thenReturn(classroom);
+		Mockito.when(repository.save(student)).thenReturn(student);
 		
 	}
 	
@@ -61,4 +75,33 @@ public class StudentServiceTests {
 		
 	}
 	
+	@Test
+	public void findByIdShouldReturnStudentDTO() {
+		
+		StudentDTO dto = service.findById(existingId);
+		
+		Assertions.assertNotNull(dto);
+		Mockito.verify(repository, Mockito.times(1)).findById(existingId);
+		
+	}
+	
+	@Test
+	public void updateShouldReturnStudentDTO() {
+		
+		StudentDTO dto = service.update(studentDto, existingId);
+	
+		
+		Assertions.assertNotNull(dto);
+		Mockito.verify(repository, Mockito.times(1)).getReferenceById(existingId);
+		Mockito.verify(repository, Mockito.times(1)).save(student);
+	}
+	
+	@Test
+	public void insertShouldReturnStudentDTO() {
+		
+		//StudentDTO dto = service.insert(studentDto);
+		
+		//Assertions.assertNotNull(dto);
+		//Mockito.verify(repository, Mockito.times(1)).save(student);
+	}
 }
