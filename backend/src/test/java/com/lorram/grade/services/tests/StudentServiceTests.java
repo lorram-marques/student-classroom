@@ -46,7 +46,7 @@ public class StudentServiceTests {
 	
 	private long existingId;
 	private long nonExistingId;
-	private long dependantId;
+	private long dependentId;
 	private Student student;
 	private StudentDTO studentDto;
 	private Classroom classroom;
@@ -74,7 +74,7 @@ public class StudentServiceTests {
 		
 		Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(student);
 		
-		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependantId);
+		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
 		
 	}
 	
@@ -153,9 +153,9 @@ public class StudentServiceTests {
 	public void deleteShouldThrowDatabaseExceptionWhenDependantId() {
 		
 		Assertions.assertThrows(DatabaseException.class, () -> {
-			service.delete(dependantId);
+			service.delete(dependentId);
 		});
 		
-		Mockito.verify(repository, times(1)).deleteById(dependantId);
+		Mockito.verify(repository, times(1)).deleteById(dependentId);
 	}
 }

@@ -39,7 +39,7 @@ public class ClassroomServiceTests {
 	
 	private long existingId;
 	private long nonExistingId;
-	private long dependantId;
+	private long dependentId;
 	
 	private Classroom classroom;
 	private ClassroomDTO classroomDto;
@@ -49,7 +49,7 @@ public class ClassroomServiceTests {
 	void setUp() throws Exception {
 		existingId = 1L;
 		nonExistingId = 2L;
-		dependantId = 3L;
+		dependentId = 3L;
 		classroom = Factory.createClassroom();
 		classroomDto = Factory.createClassroomDTO();
 		
@@ -65,7 +65,7 @@ public class ClassroomServiceTests {
 		
 		Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(classroom);
 		
-		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependantId);
+		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
 	}
 	
 	@Test
@@ -146,10 +146,10 @@ public class ClassroomServiceTests {
 	public void deleteShouldThrowDatabaseExceptionWhenIdDoesNotExist() {
 		
 		Assertions.assertThrows(DatabaseException.class, () -> {
-			service.delete(dependantId);
+			service.delete(dependentId);
 			
 		});
 		
-		Mockito.verify(repository, Mockito.times(1)).deleteById(dependantId);
+		Mockito.verify(repository, Mockito.times(1)).deleteById(dependentId);
 	}
 }
